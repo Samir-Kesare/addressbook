@@ -5,7 +5,7 @@ pipeline {
         jdk 'JDK'
     }
     environment { 
-        GIT_URL = 'https://github.com/vaadin/addressbook.git'
+        GIT_URL = 'https://github.com/Samir-Kesare/addressbook.git'
     }
     parameters {
         choice(name: 'BUILD_TYPE', choices: ['Development', 'Staging', 'Production'], description: 'Select the build environment')
