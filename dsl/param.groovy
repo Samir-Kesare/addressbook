@@ -1,12 +1,12 @@
-def env = ENVIRONMENT
-def jobName = JOB_NAME
-def repoUrl = REPO_URL
-def branch = BRANCH_NAME
-def buildCmd = BUILD_COMMAND
-def testCmd = TEST_COMMAND
-def deployCmd = DEPLOY_COMMAND
-def creds = CREDENTIALS_ID
-def email = EMAIL
+def env = binding.variables.get('ENVIRONMENT')
+def jobName = binding.variables.get('JOB_NAME')
+def repoUrl = binding.variables.get('REPO_URL')
+def branch = binding.variables.get('BRANCH_NAME')
+def buildCmd = binding.variables.get('BUILD_COMMAND')
+def testCmd = binding.variables.get('TEST_COMMAND')
+def deployCmd = binding.variables.get('DEPLOY_COMMAND')
+def creds = binding.variables.get('CREDENTIALS_ID')
+def email = binding.variables.get('EMAIL')
 
 job(jobName) {
     description("Auto-generated job for ${jobName} in ${env} environment")
