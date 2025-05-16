@@ -1,29 +1,45 @@
-def environments = ['Development', 'Staging', 'Production']
+def env = ENVIRONMENT
+def jobName = JOB_NAME
+def repoUrl = REPO_URL
+def branch = BRANCH_NAME
+def buildCmd = BUILD_COMMAND
+def testCmd = TEST_COMMAND
+def deployCmd = DEPLOY_COMMAND
+def creds = CREDENTIALS_ID
+def email = EMAIL
 
-def jobTemplateWithEnv = { jobName, repoUrl, branch, buildCommand, testCommand, deployCommand, notificationEmail, env ->
+job(jobName) {
+    description("Auto-generated job for ${jobName} in ${env} environment")
 
-    job(jobName) {
-        description("Job for ${jobName} - Environment: ${env}")
+    parameters {
+        choiceParam('ENVIRONMENT', ['Development', 'Staging', 'Production'], 'Select environment')
+        stringParam('BRANCH_NAME', branch, 'Branch to build')
+    }
 
-        parameters {
-            choiceParam('ENVIRONMENT', environments, 'Select the environment')
-            stringParam('BRANCH_NAME', branch, 'Branch to build')
-        }
-
-        steps {
-            shell("echo 'Environment: \$ENVIRONMENT'")
-            shell(buildCommand)
-            shell(testCommand)
-            
-            if (deployCommand) {
-                shell(deployCommand)
+    scm {
+        git {
+            remote {
+                url(repoUrl)
+                if (creds) {
+                    credentials(creds)
+                }
             }
+            branch(branch)
         }
+    }
 
-        publishers {
-            mailer(notificationEmail, false, false)
+    steps {
+        shell("echo 'Running in \$ENVIRONMENT environment'")
+        shell(buildCmd)
+        shell(testCmd)
+        if (deployCmd?.trim()) {
+            shell(deployCmd)
+        }
+    }
+
+    publishers {
+        if (email?.trim()) {
+            mailer(email, false, false)
         }
     }
 }
-
-     
