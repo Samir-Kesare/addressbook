@@ -1,45 +1,37 @@
-def env = binding.variables.get('ENVIRONMENT')
-def jobName = binding.variables.get('JOB_NAME')
-def repoUrl = binding.variables.get('REPO_URL')
-def branch = binding.variables.get('BRANCH_NAME')
-def buildCmd = binding.variables.get('BUILD_COMMAND')
-def testCmd = binding.variables.get('TEST_COMMAND')
-def deployCmd = binding.variables.get('DEPLOY_COMMAND')
-def creds = binding.variables.get('CREDENTIALS_ID')
-def email = binding.variables.get('EMAIL')
-
-job(jobName) {
-    description("Auto-generated job for ${jobName} in ${env} environment")
+job('example-job') {
+    description("Auto-generated job for selected environment and branch")
 
     parameters {
         choiceParam('ENVIRONMENT', ['Development', 'Staging', 'Production'], 'Select environment')
-        stringParam('BRANCH_NAME', branch, 'Branch to build')
+        stringParam('BRANCH_NAME', 'master', 'Branch to build')
+        stringParam('REPO_URL', 'https://github.com/Samir-Kesare/addressbook.git', 'Git repository URL')
+        stringParam('BUILD_COMMAND', './gradlew build', 'Build command')
+        stringParam('TEST_COMMAND', './gradlew test', 'Test command')
+        stringParam('DEPLOY_COMMAND', '', 'Deployment command (optional)')
+        stringParam('CREDENTIALS_ID', '', 'Jenkins credentials ID (optional)')
+        stringParam('EMAIL', '', 'Notification email (optional)')
     }
 
     scm {
         git {
             remote {
-                url(repoUrl)
-                if (creds) {
-                    credentials(creds)
+                url('$REPO_URL')
+                if ('$CREDENTIALS_ID') {
+                    credentials('$CREDENTIALS_ID')
                 }
             }
-            branch(branch)
+            branch('$BRANCH_NAME')
         }
     }
 
     steps {
         shell("echo 'Running in \$ENVIRONMENT environment'")
-        shell(buildCmd)
-        shell(testCmd)
-        if (deployCmd?.trim()) {
-            shell(deployCmd)
-        }
+        shell('$BUILD_COMMAND')
+        shell('$TEST_COMMAND')
+        shell('if [ ! -z "$DEPLOY_COMMAND" ]; then $DEPLOY_COMMAND; fi')
     }
 
     publishers {
-        if (email?.trim()) {
-            mailer(email, false, false)
-        }
+        mailer('$EMAIL', false, false)
     }
 }
