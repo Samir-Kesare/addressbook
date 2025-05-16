@@ -11,7 +11,7 @@ def jobTemplateWithEnv = { jobName, repoUrl, branch, buildCommand, testCommand, 
         }
 
         steps {
-            shell("echo 'Environment: ${ENVIRONMENT}'")
+            shell("echo 'Environment: \$ENVIRONMENT'")
             shell(buildCommand)
             shell(testCommand)
             
@@ -26,4 +26,4 @@ def jobTemplateWithEnv = { jobName, repoUrl, branch, buildCommand, testCommand, 
     }
 }
 
-jobTemplateWithEnv("App_Deployment", 'https://github.com/sample/repo.git', 'main', "mvn clean install", "mvn test", "sh deploy.sh", 'team@domain.com', 'Development')
+     
